@@ -1,43 +1,56 @@
 pipeline {
-  agent any
+    agent any
 
-  environment {
-    IMAGE_NAME = "madhumallela/springboot"
-    IMAGE_TAG  = "${BUILD_NUMBER}"
-  }
-
-  stages {
-
-    stage('Checkout') {
-      steps {
-        git branch: 'main', url: 'https://github.com/YOUR-ORG/springboot-gitops.git'
-      }
+    environment {
+        AWS_REGION = "ap-south-1"
+        ECR_REPO = "ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com/springboot-cicd"
     }
 
-    stage('Build JAR') {
-      steps {
-        sh 'mvn clean package -DskipTests'
-      }
-    }
+    stages {
 
-    stage('Build & Push Image') {
-      steps {
-        sh '''
-          docker build -t $IMAGE_NAME:$IMAGE_TAG .
-          docker push $IMAGE_NAME:$IMAGE_TAG
-        '''
-      }
-    }
+        stage('Checkout') {
+            steps {
+            git branch: 'main', url: 'https://github.com/madhumallela99/Jenkins-Zero-To-Hero.git'
+            }
+        }
 
-    stage('Update GitOps Manifest') {
-      steps {
-        sh '''
-          sed -i "s|image:.*|image: $IMAGE_NAME:$IMAGE_TAG|" k8s/deployment.yaml
-          git add k8s/deployment.yaml
-          git commit -m "Update image to $IMAGE_TAG"
-          git push origin main
-        '''
-      }
+        stage('Build') {
+            steps {
+                sh 'mvn clean package -DskipTests'
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                sh 'docker build -t springboot-app .'
+            }
+        }
+
+        stage('Login to ECR') {
+            steps {
+                sh '''
+                aws ecr get-login-password --region $AWS_REGION \
+                | docker login --username AWS --password-stdin $ECR_REPO
+                '''
+            }
+        }
+
+        stage('Push Image') {
+            steps {
+                sh '''
+                docker tag springboot-app:latest $ECR_REPO:latest
+                docker push $ECR_REPO:latest
+                '''
+            }
+        }
+
+        stage('Trigger CodePipeline') {
+            steps {
+                sh '''
+                aws codepipeline start-pipeline-execution \
+                --name springboot-cd-pipeline
+                '''
+            }
+        }
     }
-  }
 }
