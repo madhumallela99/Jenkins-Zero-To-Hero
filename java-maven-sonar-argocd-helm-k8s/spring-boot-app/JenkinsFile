@@ -21,13 +21,17 @@ tools {
 
         stage('Build') {
             steps {
+                     dir('java-maven-sonar-argocd-helm-k8s/spring-boot-app') {
                 sh 'mvn clean package -DskipTests'
+              }
             }
         }
 
         stage('Docker Build') {
             steps {
+                 dir('java-maven-sonar-argocd-helm-k8s/spring-boot-app') {
                 sh 'docker build -t springboot-app .'
+              }
             }
         }
 
