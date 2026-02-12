@@ -1,5 +1,10 @@
 pipeline {
     agent any
+tools {
+  git 'Default'
+  maven 'maven3.9.12'
+}
+
 
     environment {
         AWS_REGION = "ap-south-1"
