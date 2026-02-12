@@ -8,7 +8,7 @@ tools {
 
     environment {
         AWS_REGION = "ap-south-1"
-        ECR_REPO = "ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com/springboot-cicd"
+        ECR_REPO = "505342112116.dkr.ecr.ap-south-1.amazonaws.com/springboot-cicd"
     }
 
     stages {
