@@ -57,7 +57,7 @@ tools {
             steps {
                 sh '''
                 aws codepipeline start-pipeline-execution \
-                --name springboot-cd-pipeline
+                --name DeployToEcsFargateService
                 '''
             }
         }
