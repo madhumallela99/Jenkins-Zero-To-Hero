@@ -5,7 +5,7 @@ tools {
   maven 'maven3.9.12'
  dockerTool 'docker'
 }
-}
+
 
 
     environment {
